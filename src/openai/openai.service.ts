@@ -26,7 +26,7 @@ export class OpenaiService {
         systemPrompt: string,
         userMessage: string,
         retrievedContext: string
-    ): Promise<string> {
+    ): Promise<{ content: string; intent: 'answer' | 'clarification' | 'escalate' }> {
         const response = await this.client.chat.completions.create({
             model: 'gpt-4o',
             messages: [
@@ -37,9 +37,12 @@ export class OpenaiService {
                     role: 'user',
                     content: `Context:\n${retrievedContext}\n\nQuestion: ${userMessage}`
                 }
-            ]
+            ],
+            response_format: {type: 'json_object'}
         })
-        return response.choices[0].message.content || '';
+
+        const parsed = JSON.parse(response.choices[0].message.content || '{}')
+        return parsed;
     }
 
 }

@@ -11,7 +11,9 @@ export class ConversationsService {
         private azureSearchService: AzureSearchService
     ) { }
 
+
     async createCompletion(dto: ConversationCompletionDto) {
+
 
         const lastUserMessage = dto.messages.filter(m => m.role === 'USER').at(-1);
         if (!lastUserMessage) {
@@ -27,12 +29,28 @@ export class ConversationsService {
         )
 
         const context = retrievedDocs.map((doc, i) => `[${i + 1}] ${doc.content}`).join('\n\n')
-        //to-do ver se eu fiz essa logica certinho
 
-        const systemPrompt = `You are Claudia, a Tesla support assistant. 
-        Answer ONLY using the provded context.
-        If the context doesn't contain the answer,ask for clarification.
-        BE friendly and concise. Use emojis occasionally.`
+        const clarificationCount = dto.messages.filter(
+            m => m.role === 'AGENT' && m.intent ==='clarification'
+        ).length;
+
+        const systemPrompt = `
+        You are Claudia, a Tesla support assistant.
+Answer ONLY using the provded context.
+
+Return your response as JSON with this exact structure:
+{
+  "content": "your message here",
+  "intent": "answer" | "clarification" | "escalate"
+}
+
+Follow those rules:
+- Use "answer" when you can answer the question confidently from the context
+- Use "clarification" when you need more information from the user
+- Use "escalate" when you cannot help and need human assistance
+${clarificationCount >= 2 ? 'IMPORTANT: You have already asked for clarification twice. You MUST use "escalate" now if you still cannot answer.' : ''}
+
+Be friendly, concise, and use emojis occasionally 😊`;
 
         const agentResponseFromOpenAi = await this.openAiService.getChatcompletion(
             systemPrompt,
@@ -40,16 +58,23 @@ export class ConversationsService {
             context
         )
 
+        const needsHandover =
+            agentResponseFromOpenAi.intent === 'escalate' ||
+            (clarificationCount >= 2 && agentResponseFromOpenAi.intent === 'clarification')
+
+
+
         return {
             messages: [
                 ...dto.messages
                 ,
                 {
                     role: 'AGENT',
-                    content: agentResponseFromOpenAi
+                    content: agentResponseFromOpenAi.content,
+                    intent: agentResponseFromOpenAi.intent
                 }
             ],
-            handOverToHumanNeeded: false,
+            handOverToHumanNeeded: needsHandover,
             sectionsRetrieved: retrievedDocs.map(doc => ({
                 score: doc['@search.score'],
                 content: doc.content,

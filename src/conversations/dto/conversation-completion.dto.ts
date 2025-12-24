@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsEnum, IsNumber, IsOptional, IsString, ValidateNested } from "class-validator";
 
 export class MessageDto {
     @IsString()
@@ -7,6 +7,11 @@ export class MessageDto {
 
     @IsString()
     content: string;
+
+    @IsOptional()
+    @IsEnum(['answer','clarification','escalate'])
+    intent?: 'answer' | 'clarification' | 'escalate'
+
 }
 
 export class ConversationCompletionDto {
