@@ -22,4 +22,24 @@ export class OpenaiService {
 
     }
 
+    async getChatcompletion(
+        systemPrompt: string,
+        userMessage: string,
+        retrievedContext: string
+    ): Promise<string> {
+        const response = await this.client.chat.completions.create({
+            model: 'gpt-4o',
+            messages: [
+                {
+                    role: 'system', content: systemPrompt
+                },
+                {
+                    role: 'user',
+                    content: `Context:\n${retrievedContext}\n\nQuestion: ${userMessage}`
+                }
+            ]
+        })
+        return response.choices[0].message.content || '';
+    }
+
 }

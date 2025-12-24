@@ -26,20 +26,34 @@ export class ConversationsService {
             3
         )
 
+        const context = retrievedDocs.map((doc, i) => `[${i + 1}] ${doc.content}`).join('\n\n')
+        //to-do ver se eu fiz essa logica certinho
+
+        const systemPrompt = `You are Claudia, a Tesla support assistant. 
+        Answer ONLY using the provded context.
+        If the context doesn't contain the answer,ask for clarification.
+        BE friendly and concise. Use emojis occasionally.`
+
+        const agentResponseFromOpenAi = await this.openAiService.getChatcompletion(
+            systemPrompt,
+            lastUserMessage.content,
+            context
+        )
+
         return {
             messages: [
                 ...dto.messages
                 ,
                 {
                     role: 'AGENT',
-                    content: `Stub response to: ${lastUserMessage?.content}`
+                    content: agentResponseFromOpenAi
                 }
             ],
             handOverToHumanNeeded: false,
             sectionsRetrieved: retrievedDocs.map(doc => ({
                 score: doc['@search.score'],
                 content: doc.content,
-                type:doc.type
+                type: doc.type
             }))
         }
     }
