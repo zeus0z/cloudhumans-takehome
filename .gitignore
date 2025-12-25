@@ -1,7 +1,7 @@
 # compiled output
-/dist
-/node_modules
-/build
+dist
+node_modules
+build
 
 # Logs
 logs
@@ -11,6 +11,14 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
+
+dist-ssr
+*.local
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
 # OS
 .DS_Store
