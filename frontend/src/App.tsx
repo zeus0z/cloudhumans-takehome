@@ -157,11 +157,12 @@ function App() {
               <RotateCcw size={18} />
             </IconButton>
 
-            <ConfigPanel
+
+            {/* <ConfigPanel
               helpDeskId={config.helpDeskId}
               projectName={config.projectName}
               onConfigChange={handleConfigChange}
-            />
+            /> */}
           </HStack>
         </HStack>
       </Box>
