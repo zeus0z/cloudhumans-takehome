@@ -230,7 +230,7 @@ export default function Chat({
             <SampleQuestions onSelectQuestion={onSendMessage} disabled={isLoading} />
           </VStack>
         ) : (
-          <>
+          <VStack align="stretch" gap={0} pb={2}>
             {messages.map((message, index) => (
               <MessageBubble 
                 key={`${message.role}-${index}`} 
@@ -241,7 +241,7 @@ export default function Chat({
             ))}
             {isLoading && <LoadingSpinner />}
             <div ref={messagesEndRef} aria-live="polite" aria-atomic="true" />
-          </>
+          </VStack>
         )}
       </Box>
 
