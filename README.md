@@ -36,52 +36,276 @@ Além do backend, também inclui um **frontend completo** para testar a API, vis
 
 ### Pré-requisitos
 
-- Docker + Docker Compose
+Antes de começar, certifique-se de ter instalado:
 
-### 1) Variáveis de ambiente
+- **Docker** (versão 20.10 ou superior)
+- **Docker Compose** (versão 2.0 ou superior)
 
-Crie um arquivo `.env` na raiz do repositório com:
+Para verificar se estão instalados:
 
-- `OPENAI_API_KEY`
-- `AZURE_AI_SEARCH_KEY`
-- `AZURE_AI_SEARCH_ENDPOINT`
+```bash
+docker --version
+docker compose version
+```
 
-Obs.: `REDIS_URL` já é definido no `docker-compose.yml` como `redis://redis:6379`.
+### Passo 1: Clonar o repositório (se ainda não tiver)
 
-### 2) Subir tudo
+```bash
+git clone <url-do-repositorio>
+cd cloudhumans-takehome
+```
+
+### Passo 2: Configurar variáveis de ambiente
+
+1. Na raiz do repositório, crie um arquivo `.env`:
+
+```bash
+# No Windows (PowerShell)
+New-Item -Path .env -ItemType File
+
+# No Linux/Mac
+touch .env
+```
+
+2. Abra o arquivo `.env` e adicione as seguintes variáveis:
+
+```bash
+# OpenAI API Configuration
+OPENAI_API_KEY=sk-sua-chave-openai-aqui
+
+# Azure AI Search Configuration
+AZURE_AI_SEARCH_KEY=sua-chave-azure-search-aqui
+AZURE_AI_SEARCH_ENDPOINT=https://claudia-db.search.windows.net
+
+# Redis Configuration (já configurado no docker-compose.yml)
+REDIS_URL=redis://redis:6379
+```
+
+**Importante**: 
+- Substitua os valores de exemplo pelas suas credenciais reais.
+- O `REDIS_URL` já está configurado no `docker-compose.yml` para comunicação entre containers, então você pode deixar como está ou omitir essa linha.
+- **Frontend não precisa de `.env`**: O frontend já tem a URL da API configurada por padrão (`http://localhost:3000`). Só crie um `frontend/.env` se precisar usar uma porta diferente (variável: `VITE_API_URL`).
+
+### Passo 3: Construir e iniciar os containers
+
+Execute o comando abaixo na raiz do repositório:
 
 ```bash
 docker-compose up --build
 ```
 
-### 3) Acessos
+**O que acontece:**
+- O Docker Compose constrói as imagens do backend e frontend (multi-stage builds).
+- Inicia o container do Redis primeiro (com health check).
+- Aguarda o Redis ficar saudável antes de iniciar o backend.
+- Inicia o backend (NestJS) na porta 3000.
+- Aguarda o backend ficar saudável antes de iniciar o frontend.
+- Inicia o frontend (Nginx servindo React) na porta 5173.
 
-- **Frontend**: `http://localhost:5173`
-- **API**: `http://localhost:3000`
+**Primeira execução pode demorar alguns minutos** (download de imagens base, instalação de dependências, build).
+
+### Passo 4: Verificar se está funcionando
+
+1. **Verifique os logs**: você deve ver mensagens indicando que os serviços estão rodando:
+   - Redis: `Ready to accept connections`
+   - Backend: `Nest application successfully started`
+   - Frontend: logs do Nginx (geralmente silenciosos)
+
+2. **Acesse o frontend**: abra seu navegador em `http://localhost:5173`
+   - Você deve ver a interface do chat.
+
+3. **Teste a API diretamente** (opcional): faça uma requisição para `http://localhost:3000/conversations/completions` usando Postman, curl ou similar.
+
+### Passo 5: Parar os containers
+
+Para parar todos os serviços:
+
+```bash
+docker-compose down
+```
+
+Para parar e remover volumes (limpar dados do Redis):
+
+```bash
+docker-compose down -v
+```
+
+### Troubleshooting
+
+- **Erro de porta em uso**: se as portas 3000 ou 5173 estiverem ocupadas, altere no `docker-compose.yml` ou pare o processo que está usando a porta.
+- **Erro de variáveis de ambiente**: verifique se o arquivo `.env` está na raiz e se todas as variáveis estão preenchidas corretamente.
+- **Container não inicia**: execute `docker-compose logs <nome-do-servico>` (ex.: `docker-compose logs backend`) para ver os logs de erro.
+- **Build falha**: certifique-se de ter espaço em disco suficiente e conexão com a internet (para download de imagens e pacotes).
 
 ---
 
 ## Rodando localmente (sem Docker)
 
-### Backend
+Esta opção é útil para desenvolvimento, já que permite hot-reload e debug mais fácil.
+
+### Pré-requisitos
+
+- **Node.js** (versão 20 ou superior)
+- **pnpm** (gerenciador de pacotes)
+- **Redis** (para cache de embeddings)
+
+Para instalar o pnpm (se não tiver):
+
+```bash
+npm install -g pnpm
+```
+
+Para instalar o Redis:
+
+- **Windows**: use WSL2 ou instale via [Redis for Windows](https://github.com/microsoftarchive/redis/releases) ou [Docker Desktop](https://www.docker.com/products/docker-desktop) (apenas Redis).
+- **Linux**: `sudo apt-get install redis-server` (Ubuntu/Debian) ou equivalente.
+- **Mac**: `brew install redis`
+
+### Passo 1: Configurar Redis local
+
+1. **Inicie o Redis**:
+
+```bash
+# Windows (WSL ou via Docker)
+redis-server
+
+# Linux/Mac
+redis-server
+# ou, se instalado via Homebrew no Mac:
+brew services start redis
+```
+
+2. **Verifique se está rodando**:
+
+```bash
+redis-cli ping
+# Deve retornar: PONG
+```
+
+O Redis estará disponível em `redis://localhost:6379` (padrão).
+
+### Passo 2: Configurar variáveis de ambiente do backend
+
+1. Na pasta `api/`, crie um arquivo `.env`:
+
+```bash
+cd api
+# Windows (PowerShell)
+New-Item -Path .env -ItemType File
+
+# Linux/Mac
+touch .env
+```
+
+2. Abra o arquivo `api/.env` e adicione:
+
+```bash
+# OpenAI API Configuration
+OPENAI_API_KEY=sk-sua-chave-openai-aqui
+
+# Azure AI Search Configuration
+AZURE_AI_SEARCH_KEY=sua-chave-azure-search-aqui
+AZURE_AI_SEARCH_ENDPOINT=https://claudia-db.search.windows.net
+
+# Redis Configuration (local)
+REDIS_URL=redis://localhost:6379
+
+# Node Environment
+NODE_ENV=development
+```
+
+### Passo 3: Instalar dependências e rodar o backend
+
+1. **Instale as dependências**:
 
 ```bash
 cd api
 pnpm install
+```
+
+2. **Inicie o servidor em modo desenvolvimento**:
+
+```bash
 pnpm start:dev
 ```
 
-Você também vai precisar de um Redis local, ou então ajustar `REDIS_URL` para um Redis remoto.
+**O que acontece:**
+- O NestJS compila o código TypeScript.
+- Inicia o servidor na porta 3000 (padrão).
+- Habilita hot-reload (recarrega automaticamente ao salvar arquivos).
 
-### Frontend
+Você deve ver no terminal:
+```
+[Nest] INFO [NestFactory] Starting Nest application...
+[Nest] INFO [InstanceLoader] ...
+[Nest] INFO [NestFactory] Nest application successfully started on http://[::1]:3000
+```
+
+3. **Teste o backend** (opcional): acesse `http://localhost:3000` no navegador ou faça uma requisição para `http://localhost:3000/conversations/completions`.
+
+### Passo 4: Configurar e rodar o frontend
+
+1. **Instale as dependências**:
 
 ```bash
 cd frontend
 pnpm install
+```
+
+2. **Configure a URL da API** (opcional):
+
+   - **Por padrão, o frontend já está configurado para `http://localhost:3000`**.
+   - **Você NÃO precisa criar um `.env`** a menos que queira usar uma porta/URL diferente.
+   - Se precisar alterar, crie um arquivo `.env` na pasta `frontend/` com a variável `VITE_API_URL`:
+
+```bash
+# frontend/.env (OPCIONAL - só se precisar mudar a URL/porta)
+VITE_API_URL=http://localhost:3000
+```
+
+3. **Inicie o servidor de desenvolvimento**:
+
+```bash
 pnpm dev
 ```
 
-Se necessário, defina `VITE_API_URL` apontando para a API (ex.: `http://localhost:3000`).
+**O que acontece:**
+- O Vite compila o React e inicia o servidor de desenvolvimento.
+- Geralmente roda na porta 5173 (você verá a URL no terminal).
+- Habilita hot-reload (recarrega automaticamente ao salvar arquivos).
+
+Você deve ver no terminal algo como:
+```
+  VITE v5.x.x  ready in xxx ms
+
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+```
+
+4. **Acesse o frontend**: abra `http://localhost:5173` no navegador.
+
+### Passo 5: Verificar se está tudo funcionando
+
+1. **Backend rodando**: você deve conseguir acessar `http://localhost:3000` (ou ver logs de requisições no terminal).
+2. **Frontend rodando**: você deve ver a interface do chat em `http://localhost:5173`.
+3. **Teste completo**: envie uma mensagem no chat e verifique se:
+   - A requisição é enviada para o backend.
+   - A resposta é exibida no chat.
+   - O contexto recuperado (RAG) aparece no painel lateral.
+
+### Ordem de inicialização recomendada
+
+1. Redis (deve estar rodando primeiro)
+2. Backend (aguarda Redis estar disponível)
+3. Frontend (pode iniciar em paralelo, mas precisa do backend para funcionar)
+
+### Troubleshooting
+
+- **Erro "Cannot connect to Redis"**: verifique se o Redis está rodando (`redis-cli ping`) e se a `REDIS_URL` está correta.
+- **Erro de porta em uso**: altere a porta no código ou pare o processo que está usando a porta.
+- **Erro de variáveis de ambiente**: verifique se o arquivo `.env` está na pasta correta (`api/.env` para backend, `frontend/.env` para frontend se necessário).
+- **Erro de dependências**: delete `node_modules` e `pnpm-lock.yaml`, depois execute `pnpm install` novamente.
+- **Frontend não conecta ao backend**: verifique se `VITE_API_URL` está correto e se o backend está rodando e acessível.
 
 ---
 
