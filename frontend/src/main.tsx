@@ -8,7 +8,7 @@ import App from './App.tsx'
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ChakraProvider value={system}>
-      <App />
+    <App />
     </ChakraProvider>
   </StrictMode>,
 )
