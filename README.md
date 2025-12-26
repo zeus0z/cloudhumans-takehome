@@ -1,4 +1,7 @@
 # Cloud Humans Take-Home (Backend + Frontend)
+<img width="1912" height="937" alt="image" src="https://github.com/user-attachments/assets/601528f6-385e-4c8e-a582-572a4da54a36" />
+
+
 
 ## Aviso importante
 
@@ -40,21 +43,58 @@ A aplicação oferece uma interface completa para interagir com o assistente vir
 
 - **Perguntas de demonstração**: Ao abrir a aplicação, você verá uma seleção de perguntas pré-configuradas que pode clicar para testar rapidamente o sistema.
 
+<div align="center">
+  <img width="1040" height="334" alt="image" src="https://github.com/user-attachments/assets/87026958-280c-46b9-a10e-0f64b92e17b0" />
+  <p><em>Perguntas de exemplo</em></p>
+</div>
+
+
 - **Tempo de resposta e intenção**: Abaixo de cada mensagem do bot, você verá:
   - O tempo que a requisição levou para ser processada (permitindo verificar a performance do cache Redis)
   - Uma badge indicando a intenção da mensagem:
     - **Answer**: O bot respondeu com confiança usando o contexto disponível
     - **Clarification**: O bot precisa de mais informações do usuário
     - **Escalate**: O bot não pode ajudar e está solicitando transferência para um humano
+    
+<div align="center">
+  <img width="233" height="59" alt="image" src="https://github.com/user-attachments/assets/443d4960-dd62-4d54-a532-fbc8eebe38a0" />
+  <p><em>Tempo do request e intuito da resposta</em></p>
+</div>
 
-- **Contexto recuperado (RAG)**: Do lado direito da tela (ou em um drawer no mobile), você tem acesso ao contexto recuperado pelo sistema RAG para a mensagem mais recente, incluindo:
-  - Trechos de texto relevantes da base de conhecimento
-  - Score de relevância de cada trecho
-  - Tipo de seção (FAQ, Manual, etc.)
+
+
+
+- **Contexto recuperado (RAG)**: Do lado direito da tela (ou em um drawer no mobile), você tem acesso ao contexto recuperado pelo sistema RAG para a mensagem mais recente, incluindo trechos de texto relevantes da base de conhecimento, e o score de relevância de cada trecho
+
+<div align="center">
+  <img width="600" alt="Painel de contexto recuperado" src="https://github.com/user-attachments/assets/887f48a6-9b97-4ff1-9e5e-ce8aea70d0a0" />
+  <p><em>Painel de contexto com scores de relevância</em></p>
+</div>
+
 
 - **Handover para humano**: O bot pode identificar quando não consegue responder adequadamente e solicitar que a conversa seja transferida para um assistente humano.
 
 - **Interface responsiva**: A aplicação é totalmente responsiva e funciona perfeitamente em todos os tamanhos de tela (smartphones, tablets, desktop).
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+          <img width="939" height="936" alt="image" src="https://github.com/user-attachments/assets/8d095160-bed2-4ada-95b4-e76d630d7f4a" />
+        <br />
+        <em>Tablet</em>
+      </td>
+      <td align="center">
+          <img width="443" height="934" alt="image" src="https://github.com/user-attachments/assets/22b5d3eb-e13a-465e-be61-2e5f4619a998" />
+        <br />
+        <em>Smartphone</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+
 
 ### ⚡ Testando a performance do cache Redis
 
@@ -66,6 +106,24 @@ Para visualizar o ganho de performance do cache de embeddings:
 4. Compare os tempos: a segunda requisição será significativamente mais rápida
 
 **Observe nas imagens abaixo a diferença entre o tempo do primeiro request (sem cache) e o segundo (com o embedding já em cache):**
+
+<div align="center">
+  <table>
+    <tr>
+      <td align="center">
+         <img width="256" height="148" alt="image" src="https://github.com/user-attachments/assets/4823819d-5254-41b5-92a6-98e45bec1352" />
+        <br />
+        <em>Primeiro request (sem cache) - 3.90s</em>
+      </td>
+      <td align="center">
+         <img width="319" height="166" alt="image" src="https://github.com/user-attachments/assets/27f96b7e-0c94-4276-8107-dbb763c4c65f" />
+        <br />
+        <em>Segundo request (com cache) - 1.41s</em>
+      </td>
+    </tr>
+  </table>
+</div>
+
 
 
 
