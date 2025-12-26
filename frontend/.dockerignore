@@ -1,0 +1,16 @@
+node_modules
+pnpm-lock.yaml
+dist
+
+*.md
+.env
+.env.*
+
+.git
+.gitignore
+
+.vscode
+.idea
+
+logs
+*.log
