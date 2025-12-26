@@ -32,6 +32,62 @@ Além do backend, também inclui um **frontend completo** para testar a API, vis
 
 ---
 
+## 📱 Como usar a interface
+
+A aplicação oferece uma interface completa para interagir com o assistente virtual:
+
+### ✨ Funcionalidades principais
+
+- **Perguntas de demonstração**: Ao abrir a aplicação, você verá uma seleção de perguntas pré-configuradas que pode clicar para testar rapidamente o sistema.
+
+- **Tempo de resposta e intenção**: Abaixo de cada mensagem do bot, você verá:
+  - O tempo que a requisição levou para ser processada (permitindo verificar a performance do cache Redis)
+  - Uma badge indicando a intenção da mensagem:
+    - **Answer**: O bot respondeu com confiança usando o contexto disponível
+    - **Clarification**: O bot precisa de mais informações do usuário
+    - **Escalate**: O bot não pode ajudar e está solicitando transferência para um humano
+
+- **Contexto recuperado (RAG)**: Do lado direito da tela (ou em um drawer no mobile), você tem acesso ao contexto recuperado pelo sistema RAG para a mensagem mais recente, incluindo:
+  - Trechos de texto relevantes da base de conhecimento
+  - Score de relevância de cada trecho
+  - Tipo de seção (FAQ, Manual, etc.)
+
+- **Handover para humano**: O bot pode identificar quando não consegue responder adequadamente e solicitar que a conversa seja transferida para um assistente humano.
+
+- **Interface responsiva**: A aplicação é totalmente responsiva e funciona perfeitamente em todos os tamanhos de tela (smartphones, tablets, desktop).
+
+### ⚡ Testando a performance do cache Redis
+
+Para visualizar o ganho de performance do cache de embeddings:
+
+1. Envie qualquer mensagem para o bot
+2. Observe o tempo de resposta exibido abaixo da mensagem
+3. Envie **exatamente a mesma mensagem** novamente
+4. Compare os tempos: a segunda requisição será significativamente mais rápida
+
+**Observe nas imagens abaixo a diferença entre o tempo do primeiro request (sem cache) e o segundo (com o embedding já em cache):**
+
+
+
+### 🧪 Testando o handover para humano
+
+Para testar a funcionalidade de handover, você pode seguir esta sequência de mensagens:
+
+1. **Primeira mensagem**: "How much?"
+   - O bot pedirá clarificação sobre qual modelo você está perguntando
+
+2. **Segunda mensagem**: "The car"
+   - O bot pedirá novamente para especificar qual modelo de carro
+
+3. **Terceira mensagem**: "Just tell me"
+   - Após múltiplas tentativas de clarificação sem sucesso, o bot solicitará transferência para um humano
+
+Esta sequência demonstra como o sistema identifica quando o usuário não está fornecendo informações suficientes mesmo após várias tentativas de clarificação, acionando automaticamente o handover.
+
+
+
+---
+
 ## Como rodar (recomendado: Docker)
 
 ### Pré-requisitos
