@@ -1,68 +1,259 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* ===================================
+   Global Resets & Box Model
+   =================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+/* ===================================
+   Root & Body Styles
+   =================================== */
+html {
+  /* Prevent iOS overscroll white flash */
+  background-color: #0a0e17;
+  /* Better text rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
-body {
+html, body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background-color: #0a0e17;
+  color: #f1f5f9;
+  overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+#root {
+  height: 100%;
+  width: 100%;
+  position: relative;
 }
 
+/* ===================================
+   Typography Enhancements
+   =================================== */
+code, kbd, pre, samp {
+  font-family: 'JetBrains Mono', 'Fira Code', Consolas, Monaco, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+/* ===================================
+   Custom Scrollbar Styles (Dark)
+   =================================== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: #0f1419;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 10px;
+  border: 2px solid #0f1419;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) #0f1419;
+}
+
+/* ===================================
+   Selection Styles
+   =================================== */
+::selection {
+  background-color: rgba(227, 25, 55, 0.3);
+  color: #ffffff;
+}
+
+::-moz-selection {
+  background-color: rgba(227, 25, 55, 0.3);
+  color: #ffffff;
+}
+
+/* ===================================
+   Focus Styles (Accessibility)
+   =================================== */
+:focus-visible {
+  outline: 2px solid rgba(227, 25, 55, 0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Remove default focus for mouse users */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ===================================
+   Link Styles
+   =================================== */
+a {
+  color: #E31937;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: #fb7185;
+  text-decoration: underline;
+}
+
+/* ===================================
+   Button Reset
+   =================================== */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: none;
+  background: none;
+  padding: 0;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
+button:disabled {
+  cursor: not-allowed;
+}
+
+/* ===================================
+   Input & Form Element Styles
+   =================================== */
+input, textarea, select {
+  font-family: inherit;
+  font-size: inherit;
+  color: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #64748b;
+  opacity: 1;
+}
+
+/* ===================================
+   Image Optimization
+   =================================== */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ===================================
+   Utility Classes
+   =================================== */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* ===================================
+   Keyframe Animations
+   =================================== */
+@keyframes typing {
+  0%, 60%, 100% {
+    opacity: 0.3;
+    transform: translateY(0);
   }
-  a:hover {
-    color: #747bff;
+  30% {
+    opacity: 1;
+    transform: translateY(-4px);
   }
-  button {
-    background-color: #f9f9f9;
+}
+
+@keyframes shimmer {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ===================================
+   Smooth Animations (Respect Motion Preferences)
+   =================================== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ===================================
+   Mobile-Specific Improvements
+   =================================== */
+@media (max-width: 768px) {
+  /* Better tap targets */
+  button, a {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Prevent zoom on input focus iOS */
+  input[type="text"],
+  input[type="search"],
+  input[type="email"],
+  input[type="tel"],
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* ===================================
+   Prevent Layout Shift
+   =================================== */
+img[width][height] {
+  height: auto;
+}
+
+/* ===================================
+   Print Styles
+   =================================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  a {
+    color: black;
+    text-decoration: underline;
   }
 }
