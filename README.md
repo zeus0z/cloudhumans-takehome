@@ -1,98 +1,192 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Cloud Humans Take-Home (Backend + Frontend)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Aviso importante
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Não usei IA para resolver o take-home** (backend/core do desafio). A implementação do endpoint RAG, das features principais e de todas as decisões técnicas (estrutura, tecnologias, responsividade, funcionalidades) foram feitas por mim.
 
-## Description
+Usei assistência de IA apenas para:
+- Organização e escrita da documentação (este README).
+- Aceleração no desenvolvimento da UI (frontend), mas mantendo controle total sobre todas as decisões de design, estrutura e funcionalidades.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+**Por não ter usado IA para o take-home, todos os pontos ruins do código (bugs, más práticas, decisões questionáveis) são de minha responsabilidade, assim como todos os méritos (qualidade, boas decisões, implementações bem feitas).**
 
-## Project setup
+---
 
-```bash
-$ pnpm install
-```
+## O que é este projeto?
 
-## Compile and run the project
+Este repositório implementa o endpoint do desafio Cloud Humans usando **RAG (Retrieval Augmented Generation)**:
 
-```bash
-# development
-$ pnpm run start
+- Gera embedding do texto do usuário (OpenAI).
+- Faz busca vetorial no **Azure AI Search** (IDS já populado).
+- Envia “contexto recuperado” + pergunta para o modelo (OpenAI) e obtém uma resposta **restrita ao contexto**.
 
-# watch mode
-$ pnpm run start:dev
+Além do backend, também inclui um **frontend completo** para testar a API, visualizar o contexto recuperado (RAG) e medir o tempo de cada requisição.
 
-# production mode
-$ pnpm run start:prod
-```
+---
 
-## Run tests
+## Estrutura do repositório
 
-```bash
-# unit tests
-$ pnpm run test
+- `api/`: NestJS (backend)
+- `frontend/`: React + Vite (interface de testes)
+- `docker-compose.yml`: sobe backend + frontend + Redis
 
-# e2e tests
-$ pnpm run test:e2e
+---
 
-# test coverage
-$ pnpm run test:cov
-```
+## Como rodar (recomendado: Docker)
 
-## Deployment
+### Pré-requisitos
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- Docker + Docker Compose
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 1) Variáveis de ambiente
+
+Crie um arquivo `.env` na raiz do repositório com:
+
+- `OPENAI_API_KEY`
+- `AZURE_AI_SEARCH_KEY`
+- `AZURE_AI_SEARCH_ENDPOINT`
+
+Obs.: `REDIS_URL` já é definido no `docker-compose.yml` como `redis://redis:6379`.
+
+### 2) Subir tudo
 
 ```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+docker-compose up --build
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 3) Acessos
 
-## Resources
+- **Frontend**: `http://localhost:5173`
+- **API**: `http://localhost:3000`
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## Rodando localmente (sem Docker)
 
-## Support
+### Backend
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+```bash
+cd api
+pnpm install
+pnpm start:dev
+```
 
-## Stay in touch
+Você também vai precisar de um Redis local, ou então ajustar `REDIS_URL` para um Redis remoto.
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### Frontend
 
-## License
+```bash
+cd frontend
+pnpm install
+pnpm dev
+```
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+Se necessário, defina `VITE_API_URL` apontando para a API (ex.: `http://localhost:3000`).
+
+---
+
+## Endpoint principal
+
+### `POST /conversations/completions`
+
+Exemplo de request:
+
+```json
+{
+  "helpDeskId": 123456,
+  "projectName": "tesla_motors",
+  "messages": [
+    { "role": "USER", "content": "How long does a Tesla battery last before it needs to be replaced?" }
+  ]
+}
+```
+
+Exemplo de response (resumido):
+
+```json
+{
+  "messages": [
+    { "role": "USER", "content": "..." },
+    { "role": "AGENT", "content": "...", "intent": "answer" }
+  ],
+  "handOverToHumanNeeded": false,
+  "sectionsRetrieved": [
+    { "score": 0.60, "content": "...", "type": "N1" }
+  ]
+}
+```
+
+---
+
+## Decisões técnicas principais
+
+### RAG (Retrieval Augmented Generation)
+
+- **Por que**: responder usando apenas o “Improved Data Set (IDS)” e evitar alucinações.
+- **O que traz**: respostas fundamentadas em contexto recuperado + visibilidade do que foi usado (o frontend mostra isso).
+
+### Feature escolhida: Clarification Feature
+
+- **Regra**: quando não houver informação suficiente, o agente pode pedir esclarecimentos.
+- **Limite**: até 2 clarificações por conversa; se precisar de uma terceira, deve escalar para humano (handover).
+
+---
+
+## Extras que eu adicionei (não exigidos, mas importantes)
+
+### Redis caching (embeddings)
+
+- **Por que eu adicionei**: embeddings são caros e repetitivos (mesmas perguntas aparecem muito em atendimento). Cache reduz custo e melhora latência.
+- **O que traz**:
+  - Menos chamadas ao provider de embeddings.
+  - Respostas mais rápidas em perguntas repetidas.
+  - Uma base simples para evoluir para estratégias como “cache por normalização de texto” e “cache por similaridade”.
+
+Onde está:
+- Cache configurado no NestJS em `api/src/app.module.ts` via `CacheModule` + Redis store.
+- Uso do cache no fluxo de embeddings em `api/src/openai/openai.service.ts` (cache key por texto).
+
+### Logging interceptor (métricas e observabilidade)
+
+- **Por que eu adicionei**: para troubleshooting e performance, é essencial enxergar tempo de execução e rota chamada (especialmente em um sistema com IO externo: OpenAI + Azure Search).
+- **O que traz**:
+  - Logging estruturado por request (método, URL, duração).
+  - Base para adicionar tracing/correlation-id no futuro.
+
+Onde está:
+- `api/src/common/logging.interceptor.ts`
+- Registrado globalmente em `api/src/main.ts`.
+
+### Exception filter (respostas de erro consistentes)
+
+- **Por que eu adicionei**: manter respostas de erro padronizadas ajuda o frontend e facilita depuração.
+- **O que traz**:
+  - Payload de erro consistente (`statusCode`, `message`, `path`, `timestamp`).
+  - Log estruturado do erro no servidor.
+
+Onde está:
+- `api/src/common/filters/all-exceptions.filter.ts`
+- Registrado globalmente em `api/src/main.ts`.
+
+### Frontend completo (UI de teste + observabilidade de RAG)
+
+- **Por que eu adicionei**: uma UI acelera revisão do desafio, demonstra o fluxo RAG e reduz fricção para testes manuais (sem Postman).
+- **O que traz**:
+  - Interface estilo “chat” para simular conversa real.
+  - Painel de contexto (RAG evidence) com score e tipo (`N1`/`N2`).
+  - Indicadores de escalonamento/clarificação.
+  - **Medição da duração da requisição** por chamada (útil para comparar “primeira vez” vs “cache hit”).
+
+Onde está:
+- `frontend/src/services/api.ts` (axios + interceptors para medir duração)
+- `frontend/src/components/ContextPanel.tsx` / `ContextDrawer.tsx` (visualização do RAG)
+
+---
+
+## Como evoluir (ideias)
+
+- **Guardrail IDS-only**: validar no backend se a resposta está suportada pelo contexto (ex.: exigir citação de trecho / id de seção).
+- **Cache inteligente**: normalização do texto (trim/lower/remove punctuation) e TTL por tipo de conteúdo.
+- **Observabilidade**: correlation-id, logs por request incluindo helpDeskId/projectName, exportação para APM.
+- **Segurança**: rate limit, validação mais restrita de payload, e CORS por ambiente.
+
