@@ -1,4 +1,4 @@
-# Cloud Humans Take-Home (Backend + Frontend)
+# RAG Helpdesk — Context-Bound AI Assistant with Redis Caching and Observability (Backend + Frontend)
 <img width="1912" height="937" alt="image" src="https://github.com/user-attachments/assets/601528f6-385e-4c8e-a582-572a4da54a36" />
 
 
