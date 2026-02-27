@@ -1,80 +1,66 @@
-# RAG Helpdesk — Context-Bound AI Assistant with Redis Caching and Observability (Backend + Frontend)
+# AI RAG System with Vector Search (LLM + Vector DB + Redis) - Backend + Frontend
+
 <img width="1912" height="937" alt="image" src="https://github.com/user-attachments/assets/601528f6-385e-4c8e-a582-572a4da54a36" />
 
 
 
-## Aviso importante
+---
 
-**Não usei IA para resolver o take-home** (backend/core do desafio). A implementação do endpoint RAG, das features principais e de todas as decisões técnicas (estrutura, tecnologias, responsividade, funcionalidades) foram feitas por mim.
+## What is this project?
 
-Usei assistência de IA apenas para:
-- Organização e escrita da documentação (este README).
-- Aceleração no desenvolvimento da UI (frontend), mas mantendo controle total sobre todas as decisões de design, estrutura e funcionalidades.
+This repository implements a support endpoint using Retrieval Augmented Generation (RAG) architecture:
 
-**Por não ter usado IA para o take-home, todos os pontos ruins do código (bugs, más práticas, decisões questionáveis) são de minha responsabilidade, assim como todos os méritos (qualidade, boas decisões, implementações bem feitas).**
+* Generates embeddings for user text.
+* Performs vector searches in Azure Search (using a populated IDS).
+* Sends "retrieved context" + the question to the model to obtain a response restricted strictly to the provided context.
+
+In addition to the backend, it includes a complete frontend to test the API, visualize retrieved context, and measure request latency.
 
 ---
 
-## O que é este projeto?
+## Repository Structure
 
-Este repositório implementa o endpoint do desafio Cloud Humans usando **RAG (Retrieval Augmented Generation)**:
-
-- Gera embedding do texto do usuário (OpenAI).
-- Faz busca vetorial no **Azure AI Search** (IDS já populado).
-- Envia “contexto recuperado” + pergunta para o modelo (OpenAI) e obtém uma resposta **restrita ao contexto**.
-
-Além do backend, também inclui um **frontend completo** para testar a API, visualizar o contexto recuperado (RAG) e medir o tempo de cada requisição.
+* `api/`: NestJS (backend)
+* `frontend/`: React + Vite (test interface)
+* `docker-compose.yml`: Provisions backend, frontend, and Redis
 
 ---
 
-## Estrutura do repositório
+## How to use the interface
 
-- `api/`: NestJS (backend)
-- `frontend/`: React + Vite (interface de testes)
-- `docker-compose.yml`: sobe backend + frontend + Redis
+The application offers a complete interface to interact with the virtual assistant:
 
----
+### Main Features
 
-## 📱 Como usar a interface
-
-A aplicação oferece uma interface completa para interagir com o assistente virtual:
-
-### ✨ Funcionalidades principais
-
-- **Perguntas de demonstração**: Ao abrir a aplicação, você verá uma seleção de perguntas pré-configuradas que pode clicar para testar rapidamente o sistema.
+* **Demonstration Questions**: Upon opening the application, you will see a selection of pre-configured questions that can be clicked to quickly test the system.
 
 <div align="center">
   <img width="1040" height="334" alt="image" src="https://github.com/user-attachments/assets/87026958-280c-46b9-a10e-0f64b92e17b0" />
-  <p><em>Perguntas de exemplo</em></p>
+  <p><em>Example questions</em></p>
 </div>
 
-
-- **Tempo de resposta e intenção**: Abaixo de cada mensagem do bot, você verá:
-  - O tempo que a requisição levou para ser processada (permitindo verificar a performance do cache Redis)
-  - Uma badge indicando a intenção da mensagem:
-    - **Answer**: O bot respondeu com confiança usando o contexto disponível
-    - **Clarification**: O bot precisa de mais informações do usuário
-    - **Escalate**: O bot não pode ajudar e está solicitando transferência para um humano
-    
-<div align="center">
-  <img width="233" height="59" alt="image" src="https://github.com/user-attachments/assets/443d4960-dd62-4d54-a532-fbc8eebe38a0" />
-  <p><em>Tempo do request e intuito da resposta</em></p>
-</div>
-
-
-
-
-- **Contexto recuperado (RAG)**: Do lado direito da tela (ou em um drawer no mobile), você tem acesso ao contexto recuperado pelo sistema RAG para a mensagem mais recente, incluindo trechos de texto relevantes da base de conhecimento, e o score de relevância de cada trecho
+* **Response Time and Intent**: Below each message, you will see:
+    * The time taken to process the request (allowing for Redis cache performance verification).
+    * A badge indicating the message intent:
+        * **Answer**: The assistant responded confidently using the available context.
+        * **Clarification**: The assistant requires more information from the user.
+        * **Escalate**: The assistant cannot help and is requesting a transfer to a human agent.
 
 <div align="center">
-  <img width="600" alt="Painel de contexto recuperado" src="https://github.com/user-attachments/assets/887f48a6-9b97-4ff1-9e5e-ce8aea70d0a0" />
-  <p><em>Painel de contexto com scores de relevância</em></p>
+  <img width="233" height="59" alt="image" src="https://github.com/user-attachments/assets/443d4960-center" />
+  <p><em>Request time and response intent</em></p>
 </div>
 
+* **Retrieved Context**: On the right side of the screen (or in a drawer on mobile), you have access to the context retrieved by the system for the most recent message, including relevant text snippets from the knowledge base and the relevance score for each snippet.
 
-- **Handover para humano**: O bot pode identificar quando não consegue responder adequadamente e solicitar que a conversa seja transferida para um assistente humano.
+<div align="center">
+  <img width="600" alt="Retrieved context panel" src="https://github.com/user-attachments/assets/887f48a6-9b97-4ff1-9e5e-ce8aea70d0a0" />
+  <p><em>Context panel with relevance scores</em></p>
+</div>
 
-- **Interface responsiva**: A aplicação é totalmente responsiva e funciona perfeitamente em todos os tamanhos de tela (smartphones, tablets, desktop).
+* **Human Handover**: The system identifies when it cannot answer adequately and requests that the conversation be transferred to a human assistant.
+
+* **Responsive Interface**: The application is fully responsive and works perfectly across all screen sizes (smartphones, tablets, desktop).
 
 <div align="center">
   <table>
@@ -93,19 +79,16 @@ A aplicação oferece uma interface completa para interagir com o assistente vir
   </table>
 </div>
 
+### Testing Redis Cache Performance
 
+To visualize the performance gain from embedding caching:
 
+1. Send any message.
+2. Observe the response time displayed below the message.
+3. Send **exactly the same message** again.
+4. Compare the times: the second request will be significantly faster.
 
-### ⚡ Testando a performance do cache Redis
-
-Para visualizar o ganho de performance do cache de embeddings:
-
-1. Envie qualquer mensagem para o bot
-2. Observe o tempo de resposta exibido abaixo da mensagem
-3. Envie **exatamente a mesma mensagem** novamente
-4. Compare os tempos: a segunda requisição será significativamente mais rápida
-
-**Observe nas imagens abaixo a diferença entre o tempo do primeiro request (sem cache) e o segundo (com o embedding já em cache):**
+**Note the difference between the first request (no cache) and the second (with cached embedding) in the images below:**
 
 <div align="center">
   <table>
@@ -113,418 +96,150 @@ Para visualizar o ganho de performance do cache de embeddings:
       <td align="center">
          <img width="256" height="148" alt="image" src="https://github.com/user-attachments/assets/4823819d-5254-41b5-92a6-98e45bec1352" />
         <br />
-        <em>Primeiro request (sem cache) - 3.90s</em>
+        <em>First request (no cache) - 3.90s</em>
       </td>
       <td align="center">
          <img width="319" height="166" alt="image" src="https://github.com/user-attachments/assets/27f96b7e-0c94-4276-8107-dbb763c4c65f" />
         <br />
-        <em>Segundo request (com cache) - 1.41s</em>
+        <em>Second request (cached) - 1.41s</em>
       </td>
     </tr>
   </table>
 </div>
 
+### Testing Human Handover
 
+To test the handover functionality, follow this sequence:
 
-
-### 🧪 Testando o handover para humano
-
-Para testar a funcionalidade de handover, você pode seguir esta sequência de mensagens:
-
-1. **Primeira mensagem**: "How much?"
-   - O bot pedirá clarificação sobre qual modelo você está perguntando
-
-2. **Segunda mensagem**: "The car"
-   - O bot pedirá novamente para especificar qual modelo de carro
-
-3. **Terceira mensagem**: "Just tell me"
-   - Após múltiplas tentativas de clarificação sem sucesso, o bot solicitará transferência para um humano
-
-Esta sequência demonstra como o sistema identifica quando o usuário não está fornecendo informações suficientes mesmo após várias tentativas de clarificação, acionando automaticamente o handover.
-
-
+1. **First message**: "How much?"
+   - The system will ask for clarification regarding which model you are asking about.
+2. **Second message**: "The car"
+   - The system will ask again to specify the car model.
+3. **Third message**: "Just tell me"
+   - After multiple unsuccessful clarification attempts, the system will request a transfer to a human.
 
 ---
 
-## Como rodar (recomendado: Docker)
+## How to run (Recommended: Docker)
 
-### Pré-requisitos
+### Prerequisites
 
-Antes de começar, certifique-se de ter instalado:
+* **Docker** (version 20.10 or higher)
+* **Docker Compose** (version 2.0 or higher)
 
-- **Docker** (versão 20.10 ou superior)
-- **Docker Compose** (versão 2.0 ou superior)
-
-Para verificar se estão instalados:
+To verify installations:
 
 ```bash
 docker --version
 docker compose version
 ```
 
-### Passo 1: Clonar o repositório (se ainda não tiver)
+### Step 1: Clone the repository
 
 ```bash
-git clone <url-do-repositorio>
-cd cloudhumans-takehome
+git clone <repository-url>
+cd project-directory
 ```
 
-### Passo 2: Configurar variáveis de ambiente
+### Step 2: Configure environment variables
 
-1. Na raiz do repositório, crie um arquivo `.env`:
+1. Create a `.env` file in the root:
 
 ```bash
-# No Windows (PowerShell)
-New-Item -Path .env -ItemType File
-
-# No Linux/Mac
 touch .env
 ```
 
-2. Abra o arquivo `.env` e adicione as seguintes variáveis:
+2. Add the following variables:
 
 ```bash
-# OpenAI API Configuration
-OPENAI_API_KEY=sk-sua-chave-openai-aqui
+# Provider Configuration
+OPENAI_API_KEY=sk-your-key-here
 
-# Azure AI Search Configuration
-AZURE_AI_SEARCH_KEY=sua-chave-azure-search-aqui
-AZURE_AI_SEARCH_ENDPOINT=https://claudia-db.search.windows.net
+# Search Configuration
+AZURE_AI_SEARCH_KEY=your-azure-key-here
+AZURE_AI_SEARCH_ENDPOINT=[https://your-endpoint.search.windows.net](https://your-endpoint.search.windows.net)
 
-# Redis Configuration (já configurado no docker-compose.yml)
+# Redis Configuration
 REDIS_URL=redis://redis:6379
 ```
 
-**Importante**: 
-- Substitua os valores de exemplo pelas suas credenciais reais.
-- O `REDIS_URL` já está configurado no `docker-compose.yml` para comunicação entre containers, então você pode deixar como está ou omitir essa linha.
-- **Frontend não precisa de `.env`**: O frontend já tem a URL da API configurada por padrão (`http://localhost:3000`). Só crie um `frontend/.env` se precisar usar uma porta diferente (variável: `VITE_API_URL`).
-
-### Passo 3: Construir e iniciar os containers
-
-Execute o comando abaixo na raiz do repositório:
+### Step 3: Build and start containers
 
 ```bash
 docker-compose up --build
 ```
 
-**O que acontece:**
-- O Docker Compose constrói as imagens do backend e frontend (multi-stage builds).
-- Inicia o container do Redis primeiro (com health check).
-- Aguarda o Redis ficar saudável antes de iniciar o backend.
-- Inicia o backend (NestJS) na porta 3000.
-- Aguarda o backend ficar saudável antes de iniciar o frontend.
-- Inicia o frontend (Nginx servindo React) na porta 5173.
-
-**Primeira execução pode demorar alguns minutos** (download de imagens base, instalação de dependências, build).
-
-### Passo 4: Verificar se está funcionando
-
-1. **Verifique os logs**: você deve ver mensagens indicando que os serviços estão rodando:
-   - Redis: `Ready to accept connections`
-   - Backend: `Nest application successfully started`
-   - Frontend: logs do Nginx (geralmente silenciosos)
-
-2. **Acesse o frontend**: abra seu navegador em `http://localhost:5173`
-   - Você deve ver a interface do chat.
-
-3. **Teste a API diretamente** (opcional): faça uma requisição para `http://localhost:3000/conversations/completions` usando Postman, curl ou similar.
-
-### Passo 5: Parar os containers
-
-Para parar todos os serviços:
-
-```bash
-docker-compose down
-```
-
-Para parar e remover volumes (limpar dados do Redis):
-
-```bash
-docker-compose down -v
-```
-
-### Troubleshooting
-
-- **Erro de porta em uso**: se as portas 3000 ou 5173 estiverem ocupadas, altere no `docker-compose.yml` ou pare o processo que está usando a porta.
-- **Erro de variáveis de ambiente**: verifique se o arquivo `.env` está na raiz e se todas as variáveis estão preenchidas corretamente.
-- **Container não inicia**: execute `docker-compose logs <nome-do-servico>` (ex.: `docker-compose logs backend`) para ver os logs de erro.
-- **Build falha**: certifique-se de ter espaço em disco suficiente e conexão com a internet (para download de imagens e pacotes).
-
 ---
 
-## Rodando localmente (sem Docker)
+## Running locally (without Docker)
 
-Esta opção é útil para desenvolvimento, já que permite hot-reload e debug mais fácil.
+### Prerequisites
 
-### Pré-requisitos
+* **Node.js** (v20+)
+* **pnpm**
+* **Redis**
 
-- **Node.js** (versão 20 ou superior)
-- **pnpm** (gerenciador de pacotes)
-- **Redis** (para cache de embeddings)
-
-Para instalar o pnpm (se não tiver):
+### Step 1: Install and run
 
 ```bash
-npm install -g pnpm
-```
-
-Para instalar o Redis:
-
-- **Windows**: use WSL2 ou instale via [Redis for Windows](https://github.com/microsoftarchive/redis/releases) ou [Docker Desktop](https://www.docker.com/products/docker-desktop) (apenas Redis).
-- **Linux**: `sudo apt-get install redis-server` (Ubuntu/Debian) ou equivalente.
-- **Mac**: `brew install redis`
-
-### Passo 1: Configurar Redis local
-
-1. **Inicie o Redis**:
-
-```bash
-# Windows (WSL ou via Docker)
-redis-server
-
-# Linux/Mac
-redis-server
-# ou, se instalado via Homebrew no Mac:
-brew services start redis
-```
-
-2. **Verifique se está rodando**:
-
-```bash
-redis-cli ping
-# Deve retornar: PONG
-```
-
-O Redis estará disponível em `redis://localhost:6379` (padrão).
-
-### Passo 2: Configurar variáveis de ambiente do backend
-
-1. Na pasta `api/`, crie um arquivo `.env`:
-
-```bash
-cd api
-# Windows (PowerShell)
-New-Item -Path .env -ItemType File
-
-# Linux/Mac
-touch .env
-```
-
-2. Abra o arquivo `api/.env` e adicione:
-
-```bash
-# OpenAI API Configuration
-OPENAI_API_KEY=sk-sua-chave-openai-aqui
-
-# Azure AI Search Configuration
-AZURE_AI_SEARCH_KEY=sua-chave-azure-search-aqui
-AZURE_AI_SEARCH_ENDPOINT=https://claudia-db.search.windows.net
-
-# Redis Configuration (local)
-REDIS_URL=redis://localhost:6379
-
-# Node Environment
-NODE_ENV=development
-```
-
-### Passo 3: Instalar dependências e rodar o backend
-
-1. **Instale as dependências**:
-
-```bash
+# In the api folder
 cd api
 pnpm install
-```
-
-2. **Inicie o servidor em modo desenvolvimento**:
-
-```bash
 pnpm start:dev
-```
 
-**O que acontece:**
-- O NestJS compila o código TypeScript.
-- Inicia o servidor na porta 3000 (padrão).
-- Habilita hot-reload (recarrega automaticamente ao salvar arquivos).
-
-Você deve ver no terminal:
-```
-[Nest] INFO [NestFactory] Starting Nest application...
-[Nest] INFO [InstanceLoader] ...
-[Nest] INFO [NestFactory] Nest application successfully started on http://[::1]:3000
-```
-
-3. **Teste o backend** (opcional): acesse `http://localhost:3000` no navegador ou faça uma requisição para `http://localhost:3000/conversations/completions`.
-
-### Passo 4: Configurar e rodar o frontend
-
-1. **Instale as dependências**:
-
-```bash
-cd frontend
+# In the frontend folder
+cd ../frontend
 pnpm install
-```
-
-2. **Configure a URL da API** (opcional):
-
-   - **Por padrão, o frontend já está configurado para `http://localhost:3000`**.
-   - **Você NÃO precisa criar um `.env`** a menos que queira usar uma porta/URL diferente.
-   - Se precisar alterar, crie um arquivo `.env` na pasta `frontend/` com a variável `VITE_API_URL`:
-
-```bash
-# frontend/.env (OPCIONAL - só se precisar mudar a URL/porta)
-VITE_API_URL=http://localhost:3000
-```
-
-3. **Inicie o servidor de desenvolvimento**:
-
-```bash
 pnpm dev
 ```
 
-**O que acontece:**
-- O Vite compila o React e inicia o servidor de desenvolvimento.
-- Geralmente roda na porta 5173 (você verá a URL no terminal).
-- Habilita hot-reload (recarrega automaticamente ao salvar arquivos).
-
-Você deve ver no terminal algo como:
-```
-  VITE v5.x.x  ready in xxx ms
-
-  ➜  Local:   http://localhost:5173/
-  ➜  Network: use --host to expose
-```
-
-4. **Acesse o frontend**: abra `http://localhost:5173` no navegador.
-
-### Passo 5: Verificar se está tudo funcionando
-
-1. **Backend rodando**: você deve conseguir acessar `http://localhost:3000` (ou ver logs de requisições no terminal).
-2. **Frontend rodando**: você deve ver a interface do chat em `http://localhost:5173`.
-3. **Teste completo**: envie uma mensagem no chat e verifique se:
-   - A requisição é enviada para o backend.
-   - A resposta é exibida no chat.
-   - O contexto recuperado (RAG) aparece no painel lateral.
-
-### Ordem de inicialização recomendada
-
-1. Redis (deve estar rodando primeiro)
-2. Backend (aguarda Redis estar disponível)
-3. Frontend (pode iniciar em paralelo, mas precisa do backend para funcionar)
-
-### Troubleshooting
-
-- **Erro "Cannot connect to Redis"**: verifique se o Redis está rodando (`redis-cli ping`) e se a `REDIS_URL` está correta.
-- **Erro de porta em uso**: altere a porta no código ou pare o processo que está usando a porta.
-- **Erro de variáveis de ambiente**: verifique se o arquivo `.env` está na pasta correta (`api/.env` para backend, `frontend/.env` para frontend se necessário).
-- **Erro de dependências**: delete `node_modules` e `pnpm-lock.yaml`, depois execute `pnpm install` novamente.
-- **Frontend não conecta ao backend**: verifique se `VITE_API_URL` está correto e se o backend está rodando e acessível.
-
 ---
 
-## Endpoint principal
+## Main Endpoint
 
 ### `POST /conversations/completions`
 
-Exemplo de request:
+Example request:
 
 ```json
 {
   "helpDeskId": 123456,
   "projectName": "tesla_motors",
   "messages": [
-    { "role": "USER", "content": "How long does a Tesla battery last before it needs to be replaced?" }
-  ]
-}
-```
-
-Exemplo de response (resumido):
-
-```json
-{
-  "messages": [
-    { "role": "USER", "content": "..." },
-    { "role": "AGENT", "content": "...", "intent": "answer" }
-  ],
-  "handOverToHumanNeeded": false,
-  "sectionsRetrieved": [
-    { "score": 0.60, "content": "...", "type": "N1" }
+    { "role": "USER", "content": "How long does a Tesla battery last?" }
   ]
 }
 ```
 
 ---
 
-## Decisões técnicas principais
+## Technical Decisions
 
-### RAG (Retrieval Augmented Generation)
+### Retrieval Augmented Generation (RAG)
 
-- **Por que**: responder usando apenas o “Improved Data Set (IDS)” e evitar alucinações.
-- **O que traz**: respostas fundamentadas em contexto recuperado + visibilidade do que foi usado (o frontend mostra isso).
+* **Purpose**: To provide answers based strictly on the knowledge base and prevent hallucinations.
+* **Benefit**: Fact-based responses with transparency regarding the source material.
 
-### Feature escolhida: Clarification Feature
+### Clarification Feature
 
-- **Regra**: quando não houver informação suficiente, o agente pode pedir esclarecimentos.
-- **Limite**: até 2 clarificações por conversa; se precisar de uma terceira, deve escalar para humano (handover).
+* **Rule**: When information is insufficient, the agent requests clarification.
+* **Limit**: Maximum of 2 clarifications per conversation; a third requirement triggers a human handover.
 
----
+### Redis Caching (Embeddings)
 
-## Extras que eu adicionei (não exigidos, mas importantes)
+* **Purpose**: Embeddings can be resource-intensive and repetitive. Caching reduces external calls and latency.
+* **Benefit**: Faster response times for repeated queries and lower operational costs.
 
-### Redis caching (embeddings)
+### Logging and Observability
 
-- **Por que eu adicionei**: embeddings são caros e repetitivos (mesmas perguntas aparecem muito em atendimento). Cache reduz custo e melhora latência.
-- **O que traz**:
-  - Menos chamadas ao provider de embeddings.
-  - Respostas mais rápidas em perguntas repetidas.
-  - Uma base simples para evoluir para estratégias como “cache por normalização de texto” e “cache por similaridade”.
-
-Onde está:
-- Cache configurado no NestJS em `api/src/app.module.ts` via `CacheModule` + Redis store.
-- Uso do cache no fluxo de embeddings em `api/src/openai/openai.service.ts` (cache key por texto).
-
-### Logging interceptor (métricas e observabilidade)
-
-- **Por que eu adicionei**: para troubleshooting e performance, é essencial enxergar tempo de execução e rota chamada (especialmente em um sistema com IO externo: OpenAI + Azure Search).
-- **O que traz**:
-  - Logging estruturado por request (método, URL, duração).
-  - Base para adicionar tracing/correlation-id no futuro.
-
-Onde está:
-- `api/src/common/logging.interceptor.ts`
-- Registrado globalmente em `api/src/main.ts`.
-
-### Exception filter (respostas de erro consistentes)
-
-- **Por que eu adicionei**: manter respostas de erro padronizadas ajuda o frontend e facilita depuração.
-- **O que traz**:
-  - Payload de erro consistente (`statusCode`, `message`, `path`, `timestamp`).
-  - Log estruturado do erro no servidor.
-
-Onde está:
-- `api/src/common/filters/all-exceptions.filter.ts`
-- Registrado globalmente em `api/src/main.ts`.
-
-### Frontend completo (UI de teste + observabilidade de RAG)
-
-- **Por que eu adicionei**: uma UI acelera revisão do desafio, demonstra o fluxo RAG e reduz fricção para testes manuais (sem Postman).
-- **O que traz**:
-  - Interface estilo “chat” para simular conversa real.
-  - Painel de contexto (RAG evidence) com score e tipo (`N1`/`N2`).
-  - Indicadores de escalonamento/clarificação.
-  - **Medição da duração da requisição** por chamada (útil para comparar “primeira vez” vs “cache hit”).
-
-Onde está:
-- `frontend/src/services/api.ts` (axios + interceptors para medir duração)
-- `frontend/src/components/ContextPanel.tsx` / `ContextDrawer.tsx` (visualização do RAG)
+* **Interceptor**: A logging interceptor tracks execution time and route metadata for performance monitoring.
+* **Exception Filter**: Standardizes error responses for consistent debugging.
 
 ---
 
-## Como evoluir (ideias)
+## Future Improvements
 
-- **Guardrail IDS-only**: validar no backend se a resposta está suportada pelo contexto (ex.: exigir citação de trecho / id de seção).
-- **Cache inteligente**: normalização do texto (trim/lower/remove punctuation) e TTL por tipo de conteúdo.
-- **Observabilidade**: correlation-id, logs por request incluindo helpDeskId/projectName, exportação para APM.
-- **Segurança**: rate limit, validação mais restrita de payload, e CORS por ambiente.
-
+* **Stricter Guardrails**: Backend validation to ensure every response includes a specific source citation.
+* **Intelligent Caching**: Text normalization and TTL based on content type.
+* **Enhanced Observability**: Implementation of correlation IDs and exports to APM tools.
+* **Security**: Rate limiting and environment-based CORS policies.
